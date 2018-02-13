@@ -1,0 +1,195 @@
+itai1357
+arie.shtine
+
+amos.tall oriyafr yairel
+
+=============================
+=      File description     =
+=============================
+In this exercise we have the main package "oop.ex6" that contains 5 inner packages:
+"main" , "scopes" , "types" , "variable" , "line.lineException"
+Now I give details about each of them:
+
+--"main"--
+it contains the classes : "Sjavac" and "Patterns".
+    Sjavac:
+    class that has a main method that run all the program. the class also has its instance that contains
+    fields about the file that are being checked by the program.
+    the main method call to the constructor of the GlobalScope, the first step in the check of the entire
+    code.
+    the class include the next  public method:
+    (static) main - run all the program
+    (String) nextLine - return the next line (as String) of the file and points on this line.
+    (void) rereadTheFile - reopen the file and reinitialized the readerFile and the BufferedFile, in order to
+    move
+                    through the file again.
+
+    "Patterns":
+    an assistance class that has fields that related to the patterns (of the regex) that used in the program.
+    the class also has static method:
+    (static ArrayList<Pattern>) createPatternList - return list of patterns, while each pattern represent a
+                                                    beggining of valid line in Sjavac language.
+    (static String) cutSpacesInEdges -
+
+--scopes--
+it contains all the classes that related to all the kind of scopes.
+it contains the classes: "Scope" (an abstract class), "GlobalScope" (sub-class of "Scope") ,
+"IfOrWhileScope"  (sub-class of "Scope"), "MethodScope" (sub-class of "Scope").
+
+    Scope:
+    an abstract class that treat all the kinds of scopes. it has the next methods:
+    (void) treatScope - its important to remark that this method treat "MethodScope" and "IfOrWhileScope".
+                        "GlobalScope" override this method and has unique for itself.
+    (void) scopeCases - its important to remark that this method treat "MethodScope" and "IfOrWhileScope".
+                                               "GlobalScope" override this method and has unique for itself.
+    (void) dealWithMethodCallPrefix -
+    (MethodScope) getTheMethod -
+    (void) dealWithFinalPrefix -
+    (void) dealWithDeclarationPrefix -
+    (void) dealWithAssignmentPrefix -
+    (Variable) getTheMostSpecificVariableWIthGivenName -
+    (void) skipTemporaryScope -
+
+    GlobalScope:
+    a sub-class of "Scope". it represent the main scope of the file and treat it by move through it line by
+    line. in other word, it contains all the file's lines. it has itself unique methods, as follows:
+    (void) treatScope - it overrides the super methods in class "Scope".
+    (boolean) checkIfMethodNameAlreadyExist -
+    (HashMap<String,Variable>) copyGlobalVariableHahMap -
+
+--types--
+it contains the class "Type".
+
+    Type:
+    the goal of the class is to holds information about the names of the valid types in the program and
+    holds valid regex to each type.
+    Note: if we want to add another type, the treat heppens only in this class! as we wrote as instruments
+    in the top of the class.
+    it contains 2 static assistance method to the program, as follows:
+    static String getRelevantRegex - the method get some type, and return regex that represent a valid
+                                     value of the type.
+    static boolean isType1ContainType2 -
+
+--variables--
+it contains the class "Variable".
+
+    Variable:
+    the goal of the class is to represent every variable that appears in the code as instance that contains
+    the fields: the name of the variable, the class of the variable, if the variable is final, if the
+    variable is initialized with value. this class doesn't have methods (except to constructor).
+
+
+
+==============================
+=   implementations issues   =
+==============================
+Using of down casting in our program:
+in contrast to the classes "GlobalScope" and "IforWhileScope", the class "MethodScope" has unique fields of
+ itself : (type: HashMap<String,Variable>) copiedGlobalVariableHashMap , (type: String) methodName,
+ (type: ArrayList<Variable>) methodParametersVariable.
+ sometime we are interested in this fields, but our object is onstance of Scope (like in case we get to
+ father of some scope). there are cases we want to use this filed and we do it by do downcasting to the
+ scope object. notice the we are sure that this object are actually in his origin is MethodScope, by
+ perform the method "getTypeOfScope".
+
+
+each MethodScope instance holds a copied set of the global scope. the reason is that when we change some
+global variable in some method, the change isn't valid to the other method. so by this way the global
+variable are changed only in the current method.
+
+
+
+
+
+=======================================
+=  Reasons for changing the UML file  =
+=======================================
+1. we want to make our program even more modularity then before. so we add other methods
+2. we figured out that all the classes that keep information about some line are useless. as well all the
+sub-classes of "Variable" and all the sub-classes of "Type" are useless.
+
+
+==========================
+=   6.1 Error Handling   =
+==========================
+the program move through the file line by line. each time the program find an unvalid line, as follows:
+unvalid format of line, using of unititialized variable, assigning of using of undeclared variable,
+other unvalid action an variable, using if/while/return/(calling to method) int the globl scope, declaring
+of method not in the global scope. in each of this situation, and ever more unvalid situation, our program
+throw LineException, that means that there is error in some place in the code.
+   so we defined that each method knows to throw exception to the previous method (the method that call to
+   the temporary method), and the error passed all the way until it comes to the main method in class
+   Sjavac. then that treat is to print "1".
+   This is how we use effectively the exception mechanism.
+
+
+
+==================================
+=   6.2 Object Oriented Design   =
+==================================
+kinds of scopes (implementation the code as tree od scopes):
+As said before, there are several type of scope. there are : global/main scope (only one in each running of
+code), there are method scopes (that can be implemented only in the global scope), and there are if scope
+and while scope (that can be implemented everywhere, except from th global scope)
+we notice that this is very similar to TREE. while the root is the global scope,method scopes are the suns
+of the root, and if and while method are come after the method in the tree hierarchy.
+we also notice that the treat at while scope and if scope are exactly the same! the only difference is the
+words "if" / "while" in the first line of the scope. but the regex pattern that we defined in the class
+Patterns a constant pattern : IF_OR_WHILE_FIRST_LINE_PATTERN that take over this difference.
+
+this hierarchy structure causes us to exercise the abstract class Scope. while each scope as access to his
+father (as the field (type: Scope)father) and his suns (as the field (type: ArrayList<Scope>) innerScopes)
+
+in this design the access to the father and to the grandfather and so on is very easy and clear, and it is
+important in order to find relevant variable when it is necessary.
+
+
+
+we make it easy and clear and schematic to add new types to the program:
+in the exercise, we was asked to take care that the program is flexibility to add new types of variables.
+there gore we concentrate all the work into one place, the class "Type".
+as said before, i wrote in the top of the class an instruments how to add new type.
+
+
+working with regex:
+in this exercise we use the regex functions. so we built the class Pattern that holds all the patterns we
+need and has some method that help us to extract some substring from line (example : extracting name of
+variable from a line of assignment). so the main classes don't have to deal with the regex, but only to get
+the relevant and the wanted pattern from some long line.
+
+creating unique method for hard task:
+when we have to perform an hard task (that take itself al lot of code line) in another major task, we built
+ an assistance method in order to focus in the main task. it help as to assumption for a while that the
+ minor task is already treated, and afterward we come back to treat the minor task by creating unique
+ method to this.
+ example:
+ consider the task to check if some condition of while loop iis valid. this is now our main task!
+ but maybe the condition contains variable.
+ so we have minor task, to check if the variable is valid variable for while condition.
+ so we exercise the assistance method "isCondValidVariable(tempCondition)" in class "IfOrWhileScope" that
+ check if the variable in the condition is valid.
+ in addition, the method isCondValidVariable(tempCondition) also has minor task : find the variable. (and
+ yes, we have unique method in class "Scope" the find the most specific variable for a given variable name
+ and returns it {or throw exception if it doesn't exist for the temporary scope})
+
+==================================
+=     6.3 Regular Exception      =
+==================================
+1) the regex : "\\s*((if)|(while))\\s*\\(\\s*(.*)\\s*\\)\\s*\\{\\s*" .
+    every time that there is potential for if/while scope (when the program find that the current line begins
+    with "if"/ "while"), the program takes the entire line and looking for a match with the regex.
+    if there is no match, so the line isn't valid if/while first line (although the line begins with "if"/
+    "while") and there is error.
+    if there is a match, the program knows to catch all the expression between the brackets (because we
+    used grouping here). and this expression is the collection if the condition for the current if/while
+    scope.
+    this regex is useful to extract easily the conditions of the while/for scope
+
+2) the regex : "\\s*(true|false|-?(\\d+(\\.\\d+|\\d*)))\\s*" .
+    this regex represent a valid boolean value (including the spaces from left and from right to the value,
+    if there are).
+    we used grouping, so even where there are spaces around, the program knows to catch the value itself,
+    excluding the spaces around.
+     this regex is useful to the next cases:
+     1) if there is value in if/while condition and we want to check if the value is valid.
+     2) if there is an assignment to variable with type of boolean.
